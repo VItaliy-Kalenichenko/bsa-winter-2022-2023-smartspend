@@ -8,7 +8,7 @@ class Http implements IHttp {
         return fetch(path, {
             method,
             headers,
-            body: JSON.stringify(payload),
+            body: payload,
         });
     }
 }
