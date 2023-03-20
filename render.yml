@@ -1,0 +1,38 @@
+services:
+  - type: web
+    env: node
+    name: smartspend-server
+    repo: https://github.com/VItaliy-Kalenichenko/bsa-winter-2022-2023-smartspend
+    buildFilter:
+      paths:
+        - ./backend/**
+    buildCommand: npm i && npm run postinstall && npm run build:shared && cd backend && npm i && npm run build
+    startCommand: node backend/build/src/index.js
+    envVars:
+      - key: DB_CONNECTION_STRING
+        fromDatabase:
+          name: smartspend-database
+          property: connectionString
+
+  - type: web
+    env: static
+    name: smartspend-frontend
+    repo: https://github.com/VItaliy-Kalenichenko/bsa-winter-2022-2023-smartspend
+    buildFilter:
+      paths:
+        - ./frontend/**
+    buildCommand: npm i && npm run build
+    staticPublishPath: ./frontend/build
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: APP_PROXY_SERVER_URL
+        fromService:
+          name: smartspend-server
+          type: web
+          property: host
+
+databases:
+  - name: smartspend-database
