@@ -2,8 +2,8 @@
     "name": "project",
     "private": "true",
     "engines": {
-        "node": "18.x.x",
-        "npm": "9.x.x"
+        "node": "18.13.0",
+        "npm": "8.19.3"
     },
     "workspaces": [
         "shared",
