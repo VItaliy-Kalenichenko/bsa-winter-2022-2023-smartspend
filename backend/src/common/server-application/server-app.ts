@@ -1,3 +1,4 @@
+import cors from '@fastify/cors';
 import swagger, { type StaticDocumentSpec } from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import Fastify, { type FastifyError } from 'fastify';
@@ -45,6 +46,7 @@ class ServerApp implements IServerApp {
         this.apis = apis;
 
         this.app = Fastify();
+
     }
 
     public addRoute(parameters: ServerAppRouteParameters): void {
@@ -91,6 +93,10 @@ class ServerApp implements IServerApp {
 
                 await this.app.register(swaggerUi, {
                     routePrefix: `${it.version}/documentation`,
+                });
+
+                await this.app.register(cors, {
+                    origin: true
                 });
             }),
         );
