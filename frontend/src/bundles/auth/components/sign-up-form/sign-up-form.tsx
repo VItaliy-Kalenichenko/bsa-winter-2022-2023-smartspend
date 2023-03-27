@@ -1,12 +1,7 @@
-import passwordShown from '~/assets/img/eye.svg';
-import passwordHidden from '~/assets/img/eye-slash.svg';
 import { Button, Input } from '~/bundles/common/components/components';
 import { ButtonType } from '~/bundles/common/enums/enums';
-import {
-    useAppForm,
-    useCallback,
-    useState,
-} from '~/bundles/common/hooks/hooks';
+import { InputType } from '~/bundles/common/enums/enums.js';
+import { useAppForm, useCallback } from '~/bundles/common/hooks/hooks';
 import {
     type UserSignUpRequestDto,
     userSignUpValidationSchema,
@@ -19,107 +14,64 @@ type Properties = {
     onSubmit: (payload: UserSignUpRequestDto) => void;
 };
 
-enum InputTypeValue {
-    EMAIL = 'email',
-    TEXT = 'text',
-    PASSWORD = 'password',
-}
-
 const SignUpForm: React.FC<Properties> = ({ onSubmit }) => {
-    const { control, errors, handleSubmit } = useAppForm<UserSignUpRequestDto>({
-        defaultValues: DEFAULT_SIGN_UP_PAYLOAD,
-        validationSchema: userSignUpValidationSchema,
-        mode: 'onBlur',
-    });
-    const [eye, setEye] = useState({ password: false, confirm: false });
+    const { control, errors, handleSubmit, reset } =
+        useAppForm<UserSignUpRequestDto>({
+            defaultValues: DEFAULT_SIGN_UP_PAYLOAD,
+            validationSchema: userSignUpValidationSchema,
+            mode: 'onBlur',
+        });
 
-    const eyeIcons = {
-        password: eye.password ? passwordShown : passwordHidden,
-        confirm: eye.confirm ? passwordShown : passwordHidden,
-    };
+    const inputReset = reset;
 
     const handleFormSubmit = useCallback(
         (event_: React.BaseSyntheticEvent): void => {
             void handleSubmit(onSubmit)(event_);
+            inputReset && reset();
         },
-        [handleSubmit, onSubmit],
-    );
-
-    const togglePasswordVisibility = useCallback(
-        (eyeType: keyof typeof eye) => {
-            setEye((previous) => ({
-                ...previous,
-                [eyeType]: !previous[eyeType],
-            }));
-        },
-        [],
-    );
-
-    const handleClickEye = useCallback(
-        (eyeType: keyof typeof eye) => () => togglePasswordVisibility(eyeType),
-        [togglePasswordVisibility],
+        [handleSubmit, inputReset, onSubmit, reset],
     );
 
     return (
         <form className={styles.form} onSubmit={handleFormSubmit}>
             <p className={styles.inputWrapper}>
                 <Input
-                    type={InputTypeValue.EMAIL}
+                    type={InputType.EMAIL}
                     label="E-mail"
-                    placeholder="Enter your email"
+                    placeholder="E-mail address"
                     name="email"
                     control={control}
                     errors={errors}
-                    className={styles.input}
+                    inputClassName={styles.inputPages}
                 />
             </p>
             <p className={styles.inputWrapper}>
                 <Input
-                    type={
-                        eye.password
-                            ? InputTypeValue.TEXT
-                            : InputTypeValue.PASSWORD
-                    }
+                    type={InputType.PASSWORD}
                     label="Password"
-                    placeholder="Enter your password"
+                    placeholder="Password"
                     name="password"
                     control={control}
                     errors={errors}
-                    className={styles.input}
+                    inputClassName={styles.inputPages}
+                    eyeHidden
                 />
-                <span className={styles.imgWrapper}>
-                    <img
-                        className={styles.eye}
-                        src={eyeIcons.password}
-                        onClickCapture={handleClickEye('password')}
-                        alt="eye"
-                    />
-                </span>
             </p>
             <p className={styles.inputWrapper}>
                 <Input
-                    type={
-                        eye.confirm
-                            ? InputTypeValue.TEXT
-                            : InputTypeValue.PASSWORD
-                    }
+                    type={InputType.PASSWORD}
                     label="Confirm password"
-                    placeholder="Confirm your password"
+                    placeholder="Confirm password"
                     name="repeatPassword"
                     control={control}
                     errors={errors}
-                    className={styles.input}
+                    inputClassName={styles.inputPages}
+                    eyeHidden
                 />
-                <span className={styles.imgWrapper}>
-                    <img
-                        className={styles.eye}
-                        src={eyeIcons.confirm}
-                        onClickCapture={handleClickEye('confirm')}
-                        alt="eye"
-                    />
-                </span>
             </p>
-            <Button type={ButtonType.SUBMIT}>Sign up</Button>
+            <Button className={styles.formButton} type={ButtonType.SUBMIT}>
+                Sign Up
+            </Button>
         </form>
     );
 };

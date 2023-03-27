@@ -1,20 +1,29 @@
 import React from 'react';
+import { type UserSignInRequestDto } from 'shared/build/index.js';
+import { userSignInValidationSchema } from 'shared/build/index.js';
 
+import { DEFAULT_SIGN_UP_PAYLOAD } from '~/bundles/auth/components/sign-up-form/constants/constants.js';
+import { useCallback, useState } from '~/bundles/common/hooks/hooks';
+
+import { Calendar } from '../components/calendar/calendar';
 import {
+    BaseModal,
     Button,
     CardTotal,
     Chart,
     DoughnutChart,
     Header,
+    Input,
     LineChart,
 } from '../components/components.js';
-import { CreateInputNote } from '../components/input/app-input';
+import { RangeSlider } from '../components/range-slider/range-slider';
 import { Tabs } from '../components/tabs/tabs';
 import { UserSettingsTabs } from '../components/user-settings-tabs/user-settings-tabs';
 import { ButtonSize } from '../enums/button-size.enum';
 import { ButtonVariant } from '../enums/button-variant.enum.js';
 import { CardVariant } from '../enums/card-variant.enum';
-import { AppRoute } from '../enums/enums.js';
+import { AppRoute, InputType } from '../enums/enums.js';
+import { useAppForm } from '../hooks/hooks.js';
 
 const tabsData = [
     { title: 'Transaction', to: '/ui/' },
@@ -69,7 +78,49 @@ const allTabsData = {
     wallets: tabsData,
 };
 
+// mock data for range slider
+
+const mockData = [
+    { amount: -50 },
+    { amount: 100 },
+    { amount: 350 },
+    { amount: 600 },
+    { amount: 900 },
+];
+
 const Base: React.FC = () => {
+    const [active, setActive] = useState(false);
+
+    const handleCancel = useCallback(() => {
+        setActive(false);
+    }, []);
+    const handleModal = useCallback(() => {
+        setActive(true);
+    }, []);
+
+    // Range Slider -------------------------------------
+    const rangeLimits = { min: -100, max: 1000 };
+    const [currentRange, setCurrentRange] = useState(rangeLimits);
+    const [filteredData, setFilteredData] = useState(mockData);
+
+    const handleSliderChange = useCallback(
+        (range: { min: number; max: number }): void => {
+            setCurrentRange(range);
+
+            const newFilteredData = mockData.filter(
+                (item) => item.amount >= range.min && item.amount <= range.max,
+            );
+            setFilteredData(newFilteredData);
+        },
+        [],
+    );
+    // end-Range Slider ----------------------------------
+
+    const { control, errors } = useAppForm<UserSignInRequestDto>({
+        defaultValues: DEFAULT_SIGN_UP_PAYLOAD,
+        validationSchema: userSignInValidationSchema,
+        mode: 'onBlur',
+    });
     return (
         <>
             <Header dataTabs={allTabsData} />
@@ -78,6 +129,21 @@ const Base: React.FC = () => {
                 <div>
                     <Tabs tabsData={tabsData} />
                 </div>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'start',
+                        alignItems: 'start',
+                        backgroundColor: '#f6f8f9',
+                    }}
+                >
+                    {/* Calendar */}
+                    <Calendar isRangeCalendar={true} />
+                    <Calendar isRangeCalendar={false} />
+                    {/* Calendar */}
+                </div>
+
                 {/* Buttons */}
                 <div
                     style={{
@@ -338,6 +404,41 @@ const Base: React.FC = () => {
                         ]}
                     />
                 </div>
+            </div>
+            {/*--------------------------------------- /end Cards */}
+            <div style={{ width: 600, height: 400 }}>
+                <LineChart
+                    dataArr={[
+                        { date: 'Mar 01,2023', value: 0 },
+                        { date: 'Mar 04,2023', value: 4500 },
+                        { date: 'Mar 07,2023', value: 6000 },
+                        { date: 'Mar 12,2023', value: 7000 },
+                        { date: 'Mar 14,2023', value: 7000 },
+                        { date: 'Mar 16,2023', value: 7500 },
+                        { date: 'Mar 19,2023', value: 5000 },
+                        { date: 'Mar 27,2023', value: 6500 },
+                        { date: 'Mar 30,2023', value: 5000 },
+                    ]}
+                />
+            </div>
+            <div>
+                <button onClick={handleModal}>Open modal window</button>
+                <BaseModal
+                    isShown={active}
+                    onClose={handleCancel}
+                    onSubmit={handleCancel}
+                    Header={<h1>Simple Modal</h1>}
+                    Body={<p>Simple modal</p>}
+                    submitButtonName={'Save changes'}
+                ></BaseModal>
+            </div>
+            {/* Doughnut Chart----------------------------------- */}
+            <div>
+                <p>Doughnut Chart</p>
+                <DoughnutChart categories={categories} />
+            </div>
+            {/* end-Doughnut Chart------------------------------- */}
+            <div>
                 {/* Doughnut Chart----------------------------------- */}
                 <div>
                     <p>Doughnut Chart</p>
@@ -345,10 +446,52 @@ const Base: React.FC = () => {
                 </div>
                 {/* end-Doughnut Chart------------------------------- */}
                 <div>
-                    <CreateInputNote />
+                    <form style={{ textAlign: 'left' }}>
+                        <Input
+                            name="email"
+                            type={InputType.EMAIL}
+                            label="Email"
+                            placeholder="Email"
+                            control={control}
+                            errors={errors}
+                        />
+
+                        <Input
+                            name="password"
+                            type={InputType.PASSWORD}
+                            label="Password"
+                            placeholder="Password"
+                            control={control}
+                            errors={errors}
+                        />
+
+                        <Input
+                            name="email"
+                            type={InputType.PASSWORD}
+                            label="Text"
+                            placeholder="Password"
+                            control={control}
+                            errors={errors}
+                            isDisabled={true}
+                        />
+                    </form>
                 </div>
             </div>
+
             <UserSettingsTabs tabsData={userSettingsData} />
+            <div>
+                <RangeSlider
+                    rangeLimits={rangeLimits}
+                    currentRange={currentRange}
+                    onChange={handleSliderChange}
+                />
+                <div>
+                    <h3>Filtered Data:</h3>
+                    {filteredData.map((item, index) => (
+                        <p key={index}>{item.amount}</p>
+                    ))}
+                </div>
+            </div>
         </>
     );
 };

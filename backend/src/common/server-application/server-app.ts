@@ -180,6 +180,10 @@ class ServerApp implements IServerApp {
 
         this.database.connect();
 
+        await this.app.register(cors, {
+            origin: true,
+        });
+
         await this.app
             .listen({
                 port: this.config.ENV.APP.PORT,

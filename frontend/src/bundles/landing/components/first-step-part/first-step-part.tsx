@@ -4,32 +4,34 @@ import styles from './styles.module.scss';
 
 const FirstStepPart: React.FC = () => {
     const listItems = [
-        'Connect your bank accounts and all your transactions will get automatically imported to Spendee.',
+        'Connect your bank accounts and all your transactions will get automatically imported to SmartSpend.',
         'Connect your crypto wallet and E-Wallet for complete overview of your cash flow.',
         'Add your cash expenses manually.',
     ];
 
+    const CashWallets = 'Cash Wallets';
+
     const walletCardsArray = [
         {
-            title: 'Cash Walletss',
+            title: CashWallets,
             wallet_type: 'Balance',
             balance_value: '+900.00$',
             variant: WalletCardVariant.PRIMARY,
         },
         {
-            title: 'Cash Walletss',
+            title: CashWallets,
             wallet_type: 'Balance',
             balance_value: '+900.00$',
             variant: WalletCardVariant.SECONDARY,
         },
         {
-            title: 'Cash Wallets',
+            title: CashWallets,
             wallet_type: 'Balance',
             balance_value: '+900.00$',
             variant: WalletCardVariant.TERTIARY,
         },
         {
-            title: 'Cash Wallets',
+            title: CashWallets,
             wallet_type: 'Balance',
             balance_value: '+900.00$',
             variant: WalletCardVariant.QUATERNARY,
